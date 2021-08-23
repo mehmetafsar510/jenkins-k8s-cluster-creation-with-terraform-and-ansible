@@ -200,9 +200,6 @@ pipeline{
                     sh "cd ${WORKSPACE}/terraform" 
                     sh """
                     terraform init
-                    terraform workspace new ${CLUSTER_NAME} || true
-                    terraform workspace select ${CLUSTER_NAME}
-                    terraform plan -out ${plan}
                     terraform apply -input=false -auto-approve ${plan}
                     """
                 }    
