@@ -197,10 +197,10 @@ pipeline{
             agent any
             steps{
                 withAWS(credentials: 'mycredentials', region: 'us-east-1') {
-                    sh "cd ${WORKSPACE}/terraform" 
+                    sh "" 
                     sh """
-                    terraform init
-                    terraform apply -input=false -auto-approve ${plan}
+                    cd ${WORKSPACE}/terraform &&
+                    terraform init | terraform apply -input=false -auto-approve ${plan}
                     """
                 }    
             }
@@ -212,8 +212,8 @@ pipeline{
                 withAWS(credentials: 'mycredentials', region: 'us-east-1') {
                     echo "Setting up cluster configuration with ansible."
                     sh "sudo mv -f ${CFN_KEYPAIR}.pem ${WORKSPACE}/ansible"
-                    sh "sed -i 's|{{key_pair}}|${CFN_KEYPAIR}.pem|g' ansible.cfg"
-                    sh "ansible-playbook playbook.yml"
+                    sh "sed -i 's|{{key_pair}}|${CFN_KEYPAIR}.pem|g' ansible/ansible.cfg"
+                    sh "cd ${WORKSPACE}/ansible && ansible-playbook playbook.yml"
                 }    
             }
         }
