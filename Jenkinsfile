@@ -197,11 +197,8 @@ pipeline{
             agent any
             steps{
                 withAWS(credentials: 'mycredentials', region: 'us-east-1') {
-                    sh "" 
-                    sh """
-                    cd ${WORKSPACE}/terraform &&
-                    terraform init | terraform apply -input=false -auto-approve ${plan}
-                    """
+                    sh "terraform init" 
+                    sh "terraform apply -input=false -auto-approve"
                 }    
             }
         }
