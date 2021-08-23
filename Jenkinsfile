@@ -208,9 +208,8 @@ pipeline{
             steps{
                 withAWS(credentials: 'mycredentials', region: 'us-east-1') {
                     echo "Setting up cluster configuration with ansible."
-                    sh "sudo mv -f ${CFN_KEYPAIR}.pem ansible"
-                    sh "sed -i 's|{{key_pair}}|${CFN_KEYPAIR}.pem|g' ansible/ansible.cfg"
-                    sh "ansible-playbook ansible/playbook.yml"
+                    sh "sed -i 's|{{key_pair}}|${CFN_KEYPAIR}.pem|g' ansible.cfg"
+                    sh "ansible-playbook playbook.yml"
                 }    
             }
         }
