@@ -232,7 +232,7 @@ pipeline{
                         echo "Docker Grand Master is not UP and running yet. Will try to reach again after 10 seconds..."
                         sleep(10)
 
-                        ip = sh(script:'aws ec2 describe-instances --region ${AWS_REGION} --filters Name=tag-value,Values=docker-grand-master Name=tag-value --query Reservations[*].Instances[*].[PublicIpAddress] --output text | sed "s/\\s*None\\s*//g"', returnStdout:true).trim()
+                        ip = sh(script:'aws ec2 describe-instances --region ${AWS_REGION} --filters Name=tag-value,Values=kube-master  --query Reservations[*].Instances[*].[PublicIpAddress] --output text | sed "s/\\s*None\\s*//g"', returnStdout:true).trim()
 
                         if (ip.length() >= 7) {
                             echo "Docker Grand Master Public Ip Address Found: $ip"
