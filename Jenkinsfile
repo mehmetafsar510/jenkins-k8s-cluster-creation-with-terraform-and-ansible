@@ -203,17 +203,6 @@ pipeline{
             }
         }
 
-        stage('Setting up cluster configuration with ansible'){
-            agent any
-            steps{
-                withAWS(credentials: 'mycredentials', region: 'us-east-1') {
-                    echo "Setting up cluster configuration with ansible."
-                    sh "sed -i 's|{{key_pair}}|${CFN_KEYPAIR}.pem|g' ansible.cfg"
-                    sh "ansible-playbook playbook.yml"
-                }    
-            }
-        }
-
         stage('Control the cluster') {
             steps {
                 echo 'Control the cluster'
@@ -234,6 +223,19 @@ pipeline{
                 }
             }
         }
+
+        stage('Setting up cluster configuration with ansible'){
+            agent any
+            steps{
+                withAWS(credentials: 'mycredentials', region: 'us-east-1') {
+                    echo "Setting up cluster configuration with ansible."
+                    sh "sed -i 's|{{key_pair}}|${CFN_KEYPAIR}.pem|g' ansible.cfg"
+                    sh "ansible-playbook playbook.yml"
+                }    
+            }
+        }
+
+        
 
        stage('Test the infrastructure') {
             steps {
