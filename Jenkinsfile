@@ -251,7 +251,7 @@ pipeline{
                     sshagent(credentials : ['my-ssh-key']) {
                         while(true) {
                             try {
-                              sh 'ssh -t -t ubuntu@\"${MASTER_INSTANCE_PUBLIC_IP}" -o StrictHostKeyChecking=no kubectl get nodes | grep -i kube-worker-1'
+                              sh 'ssh -t -t ubuntu@\"${MASTER_INSTANCE_PUBLIC_IP}" -o StrictHostKeyChecking=no kubectl get nodes | grep -i master'
                               echo "Successfully created K8s cluster."
                               break
                             }
@@ -264,14 +264,15 @@ pipeline{
                 }
             }
         }
-        stage('Check the App File') {
+        stage('Copy the config file') {
             steps { 
                 script {
 				    sshagent(credentials : ['my-ssh-key']) {
-                        sh 'ssh -t -t ubuntu@\"${MASTER_INSTANCE_PUBLIC_IP}" -o StrictHostKeyChecking=no git clone ${GIT_URL}'
-                        sh 'ssh -t -t ubuntu@\"${MASTER_INSTANCE_PUBLIC_IP}" -o StrictHostKeyChecking=no chmod 777 ${HOME_FOLDER}/${GIT_FOLDER}/start.sh'
-                        sh 'ssh -t -t ubuntu@\"${MASTER_INSTANCE_PUBLIC_IP}" -o StrictHostKeyChecking=no sh ${HOME_FOLDER}/${GIT_FOLDER}/start.sh'
-                        sh 'ssh -t -t ubuntu@\"${MASTER_INSTANCE_PUBLIC_IP}" -o StrictHostKeyChecking=no sh ${HOME_FOLDER}/${GIT_FOLDER}/deploy.sh'
+                        sh '''scp -t -t  \
+                            o StrictHostKeyChecking=no \
+                            o UserKnownHostsFile=/dev/null \
+                            q ubuntu@\"${MASTER_INSTANCE_PUBLIC_IP}":./kube/config /var/lib/jenkins/.kube
+                        '''
                      }
                 }
             }
@@ -287,6 +288,14 @@ pipeline{
                     if [ "$running" != '' ]
                     then
                         docker-compose down
+                        exist="$(kubectl get nodes | grep -i master)" || true
+                        if [ "$exist" == '' ]
+                        then
+                            
+                            echo "we have already created this cluster...."
+                        else
+                            echo 'no need to create cluster...'
+                        fi
                     else
                         echo 'app is not running with docker-compose up -d'
                     fi
