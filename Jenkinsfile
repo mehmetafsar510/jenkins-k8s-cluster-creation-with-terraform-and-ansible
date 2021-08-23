@@ -23,13 +23,11 @@ pipeline{
 
                 println "Setup kubectl helm terrform ansible  binaries..."
                 sh """
-                  curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_\$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
                   curl -o kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/1.17.9/2020-08-04/bin/linux/amd64/kubectl
                   curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
                   chmod 700 get_helm.sh
                   chmod +x ./kubectl
                   sudo mv ./kubectl /usr/local/bin
-                  sudo mv /tmp/eksctl /usr/local/bin
                   ./get_helm.sh
                   sudo yum install -y yum-utils
                   sudo yum-config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux/hashicorp.repo
@@ -271,7 +269,7 @@ pipeline{
                         sh '''scp -t -t  \
                             o StrictHostKeyChecking=no \
                             o UserKnownHostsFile=/dev/null \
-                            q ubuntu@\"${MASTER_INSTANCE_PUBLIC_IP}":./kube/config /var/lib/jenkins/.kube
+                            q ubuntu@\"${MASTER_INSTANCE_PUBLIC_IP}":./kube/config /var/lib/jenkins/.kube/config
                         '''
                      }
                 }
@@ -303,32 +301,11 @@ pipeline{
             }
         }
 
-        stage('create-ebs'){
-            agent any
-            steps{
-                sh '''
-                    VolumeId=$(aws ec2 describe-volumes --filters Name=tag:Name,Values="k8s-python-mysql2" | grep VolumeId |cut -d '"' -f 4| head -n 1)  || true
-                    if [ "$VolumeId" == '' ]
-                    then
-                        aws ec2 create-volume \
-                            --availability-zone us-east-1c\
-                            --volume-type gp2 \
-                            --size 10 \
-                            --tag-specifications 'ResourceType=volume,Tags=[{Key=Name,Value=k8s-python-mysql2}]'
-                        
-                    fi
-                '''
-            }
-        }
 
         stage('apply-k8s'){
             agent any
             steps{
                 withAWS(credentials: 'mycredentials', region: 'us-east-1') {
-                    script {
-                        env.EBS_VOLUME_ID = sh(script:"aws ec2 describe-volumes --filters Name=tag:Name,Values='k8s-python-mysql2' | grep VolumeId |cut -d '\"' -f 4| head -n 1", returnStdout: true).trim()
-                    }
-                    sh "sed -i 's/{{EBS_VOLUME_ID}}/$EBS_VOLUME_ID/g' k8s/deployment-db.yaml"
                     sh "sed -i 's|{{ECR_REGISTRY}}|$ECR_REGISTRY/$APP_REPO_NAME:latest|g' k8s/deployment-app.yaml"
                     sh '''
                         NameSpaces=$(kubectl get namespaces | grep -i phonebook) || true
