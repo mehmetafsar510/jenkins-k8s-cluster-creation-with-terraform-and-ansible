@@ -32,8 +32,7 @@ pipeline{
                   sudo yum install -y yum-utils
                   sudo yum-config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux/hashicorp.repo
                   sudo yum -y install terraform
-                  sudo yum update -y
-                  pip3 install --user ansible
+                  sudo amazon-linux-extras install ansible2 -y
                   pip3 install --user boto3 botocore
                 """
               }
@@ -423,7 +422,6 @@ pipeline{
         }
         failure {
             sh "rm -rf '${WORKSPACE}/.env'"
-            sh "terraform destroy -auto-approve"
             sh """
             aws ec2 detach-volume \
               --volume-id ${EBS_VOLUME_ID} \
