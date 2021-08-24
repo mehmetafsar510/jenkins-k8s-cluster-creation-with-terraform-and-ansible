@@ -263,7 +263,7 @@ pipeline{
             steps { 
                 script {
 				    sshagent(credentials : ['my-ssh-key']) {
-                        sh '''sudo scp -i ${CFN_KEYPAIR}.pem  \
+                        sh '''scp -t -t  \
                             -o StrictHostKeyChecking=no \
                             -o UserKnownHostsFile=/dev/null \
                             -q ubuntu@\"${MASTER_INSTANCE_PUBLIC_IP}":/home/ubuntu/.kube/config /var/lib/jenkins/.kube/
