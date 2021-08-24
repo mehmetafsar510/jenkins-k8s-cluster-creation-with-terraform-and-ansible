@@ -11,7 +11,7 @@ pipeline{
         CFN_KEYPAIR="the-doctor"
         AWS_REGION = "us-east-1"
         CLUSTER_NAME = "mehmet-cluster"
-        FQDN = "clar.mehmetafsar.com"
+        FQDN = "clarusshop.mehmetafsar.com"
         DOMAIN_NAME = "mehmetafsar.com"
         SEC_NAME = "clarus-cert"
         GIT_FOLDER = sh(script:'echo ${GIT_URL} | sed "s/.*\\///;s/.git$//"', returnStdout:true).trim()
