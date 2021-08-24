@@ -32,8 +32,9 @@ pipeline{
                   sudo yum install -y yum-utils
                   sudo yum-config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux/hashicorp.repo
                   sudo yum -y install terraform
-                  sudo amazon-linux-extras install ansible2 -y
+                  pip3 install --user ansible
                   pip3 install --user boto3 botocore
+                  sudo yum install python-boto3 -y
                 """
               }
             }
@@ -217,6 +218,7 @@ pipeline{
                         if (ip.length() >= 7) {
                             echo "Docker Grand Master Public Ip Address Found: $ip"
                             env.MASTER_INSTANCE_PUBLIC_IP = "$ip"
+                            sleep(30)
                             break
                         }
                     }
