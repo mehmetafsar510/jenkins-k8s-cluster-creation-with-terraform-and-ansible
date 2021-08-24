@@ -110,6 +110,7 @@
 
 - hosts: role_worker
   become: true
+  become_user: root
   tasks:
   
   - name: Copy the join command to server location
