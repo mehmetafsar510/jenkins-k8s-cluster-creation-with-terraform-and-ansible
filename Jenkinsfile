@@ -261,15 +261,12 @@ pipeline{
         }
         stage('Copy the config file') {
             steps { 
-                script {
-				    sshagent(credentials : ['my-ssh-key']) {
-                        sh '''sudo scp -i  \
-                            -o StrictHostKeyChecking=no \
-                            -o UserKnownHostsFile=/dev/null \
-                            -q ubuntu@\"${MASTER_INSTANCE_PUBLIC_IP}":/home/ubuntu/.kube/config /var/lib/jenkins/.kube/
-                        '''
-                     }
-                }
+                echo "Copy the config file"
+                sh '''sudo scp -i ${CFN_KEYPAIR}.pem \
+                    -o StrictHostKeyChecking=no \
+                    -o UserKnownHostsFile=/dev/null \
+                    -q ubuntu@\"${MASTER_INSTANCE_PUBLIC_IP}":/home/ubuntu/.kube/config /var/lib/jenkins/.kube/
+                '''
             }
         }
 
