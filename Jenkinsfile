@@ -457,6 +457,7 @@ pipeline{
                         fi
                     '''
                     sleep(5)
+                    sh "kubectl delete --namespace $NM_SP -f ingress-service.yaml" 
                     sh "sudo mv -f ingress-service-https.yaml ingress-service.yaml" 
                     sh "kubectl apply --namespace $NM_SP -f ssl-tls-cluster-issuer.yaml"
                     sh "sed -i 's|{{FQDN}}|$FQDN|g' ingress-service.yaml"
