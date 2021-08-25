@@ -227,16 +227,26 @@ pipeline{
             }
         }
   
-        stage('Setting up cluster configuration with ansible'){
-            agent any
-            steps{
-                withAWS(credentials: 'mycredentials', region: 'us-east-1') {
-                    echo "Setting up cluster configuration with ansible."
+        stage('Setting up cluster configuration with ansible') {
+            steps {
+                echo "Setting up cluster configuration with ansible"
+                script {
+                    sshagent(credentials : ['my-ssh-key']) {
                     sh "sed -i 's|{{key_pair}}|${CFN_KEYPAIR}.pem|g' ansible.cfg"
-                    sh "ansible-playbook playbook.yml"
-                }    
+                    sh '''
+                        Ansible=$(ssh -t -t ubuntu@\"${MASTER_INSTANCE_PUBLIC_IP}" -o StrictHostKeyChecking=no ls /home/ubuntu/.kube | grep -i config )  || true
+                        if [ "$Ansible" == '' ]
+                        then
+                            ansible-playbook playbook.yml
+
+                        fi
+                    '''
+                    }
+                }
             }
         }
+
+
 
        stage('Test the infrastructure') {
             steps {
