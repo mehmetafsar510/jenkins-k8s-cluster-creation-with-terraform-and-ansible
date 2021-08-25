@@ -226,7 +226,7 @@ pipeline{
                 }
             }
         }
-
+  
         stage('Setting up cluster configuration with ansible'){
             agent any
             steps{
@@ -237,8 +237,6 @@ pipeline{
                 }    
             }
         }
-
-        
 
        stage('Test the infrastructure') {
             steps {
@@ -319,9 +317,26 @@ pipeline{
                     sh "kubectl apply --namespace $NM_SP -f  k8s"
                     sleep(5)
                     sh "sed -i 's|{{FQDN}}|$FQDN|g' ingress-service.yaml"
-                    sh "kubectl apply --validate=false --namespace $NM_SP -f ingress-service.yaml"
                     sleep(10)
                 }                  
+            }
+        }
+
+        stage('apply-ingress') {
+            steps {
+                script {
+                        while(true) {
+                            try {
+                              sh "kubectl apply --validate=false --namespace $NM_SP -f ingress-service.yaml"
+                              echo "Successfully created ingress."
+                              break
+                            }
+                            catch(Exception) {
+                              echo 'Could not create ingress please wait'
+                              sleep(5)   
+                            }
+                        }
+                }
             }
         }
 
