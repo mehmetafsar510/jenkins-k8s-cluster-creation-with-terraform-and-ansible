@@ -266,6 +266,27 @@ pipeline{
                 }
             }
         }
+
+        stage('Test the k8s svc') {
+            steps {
+                echo "Testing if the K8s cluster is ready or not Master Public Ip Address: ${MASTER_INSTANCE_PUBLIC_IP}"
+                script {
+                    sshagent(credentials : ['my-ssh-key']) {
+                        while(true) {
+                            try {
+                              sh 'ssh -t -t ubuntu@\"${MASTER_INSTANCE_PUBLIC_IP}" -o StrictHostKeyChecking=no kubectl get svc -A'
+                              echo "Successfully K8s loadbalancer service."
+                              break
+                            }
+                            catch(Exception) {
+                              echo 'Could not create K8s cluster please wait'
+                              sleep(5)   
+                            }
+                        }
+                    }
+                }
+            }
+        }
         stage('Copy the config file') {
             steps { 
                 echo "Copy the config file"

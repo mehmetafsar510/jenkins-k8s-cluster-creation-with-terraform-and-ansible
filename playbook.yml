@@ -84,7 +84,6 @@
 
   - name: initialize the Kubernetes cluster using kubeadm
     become: true
-    ignore_errors: yes
     shell: |
       kubeadm init --config /home/ubuntu/clusterconfig.yml
     
