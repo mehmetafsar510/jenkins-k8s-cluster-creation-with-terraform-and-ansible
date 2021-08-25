@@ -255,7 +255,7 @@ pipeline{
                             try {
                               sh 'ssh -t -t ubuntu@\"${MASTER_INSTANCE_PUBLIC_IP}" -o StrictHostKeyChecking=no kubectl get nodes | grep -i master'
                               echo "Successfully created K8s cluster."
-                              sleep(60)
+                              sleep(10)
                               break
                             }
                             catch(Exception) {
@@ -277,7 +277,7 @@ pipeline{
                             try {
                               sh 'ssh -t -t ubuntu@\"${MASTER_INSTANCE_PUBLIC_IP}" -o StrictHostKeyChecking=no kubectl get svc -A'
                               echo "Successfully K8s loadbalancer service."
-                              sleep(120)
+                              sleep(10)
                               break
                             }
                             catch(Exception) {
