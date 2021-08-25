@@ -246,8 +246,6 @@ pipeline{
             }
         }
 
-
-
        stage('Test the infrastructure') {
             steps {
                 echo "Testing if the K8s cluster is ready or not Master Public Ip Address: ${MASTER_INSTANCE_PUBLIC_IP}"
