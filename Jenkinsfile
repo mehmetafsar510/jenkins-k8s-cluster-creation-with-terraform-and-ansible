@@ -238,6 +238,7 @@ pipeline{
                         if [ "$Ansible" == '' ]
                         then
                             ansible-playbook playbook.yml
+                            sleep(30)
 
                         fi
                     '''
