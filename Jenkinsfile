@@ -238,7 +238,7 @@ pipeline{
                         if [ "$Ansible" == '' ]
                         then
                             ansible-playbook playbook.yml
-                                      
+
                         fi
                     '''
                     }
@@ -277,7 +277,7 @@ pipeline{
                             try {
                               sh 'ssh -t -t ubuntu@\"${MASTER_INSTANCE_PUBLIC_IP}" -o StrictHostKeyChecking=no kubectl get svc -A'
                               echo "Successfully K8s loadbalancer service."
-                              sleep(60)
+                              sleep(75)
                               break
                             }
                             catch(Exception) {
