@@ -277,7 +277,7 @@ pipeline{
                             try {
                               sh 'ssh -t -t ubuntu@\"${MASTER_INSTANCE_PUBLIC_IP}" -o StrictHostKeyChecking=no kubectl get svc -A'
                               echo "Successfully K8s loadbalancer service."
-                              sleep(75)
+                              sleep(120)
                               break
                             }
                             catch(Exception) {
