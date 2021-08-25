@@ -238,8 +238,7 @@ pipeline{
                         if [ "$Ansible" == '' ]
                         then
                             ansible-playbook playbook.yml
-                            sleep(60)
-
+                                      
                         fi
                     '''
                     }
@@ -256,6 +255,7 @@ pipeline{
                             try {
                               sh 'ssh -t -t ubuntu@\"${MASTER_INSTANCE_PUBLIC_IP}" -o StrictHostKeyChecking=no kubectl get nodes | grep -i master'
                               echo "Successfully created K8s cluster."
+                              sleep(60)
                               break
                             }
                             catch(Exception) {
@@ -277,6 +277,7 @@ pipeline{
                             try {
                               sh 'ssh -t -t ubuntu@\"${MASTER_INSTANCE_PUBLIC_IP}" -o StrictHostKeyChecking=no kubectl get svc -A'
                               echo "Successfully K8s loadbalancer service."
+                              sleep(60)
                               break
                             }
                             catch(Exception) {
