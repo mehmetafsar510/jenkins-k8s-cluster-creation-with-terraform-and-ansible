@@ -230,9 +230,9 @@ pipeline{
         stage('Setting up cluster configuration with ansible') {
             steps {
                 echo "Setting up cluster configuration with ansible"
+                sh "sed -i 's|{{key_pair}}|${CFN_KEYPAIR}.pem|g' ansible.cfg"
                 script {
                     sshagent(credentials : ['my-ssh-key']) {
-                    sh "sed -i 's|{{key_pair}}|${CFN_KEYPAIR}.pem|g' ansible.cfg"
                     sh '''
                         Ansible=$(ssh -t -t ubuntu@\"${MASTER_INSTANCE_PUBLIC_IP}" -o StrictHostKeyChecking=no ls /home/ubuntu/.kube | grep -i config )  || true
                         if [ "$Ansible" == '' ]
