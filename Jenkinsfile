@@ -343,6 +343,9 @@ pipeline{
                         fi
                     '''
                     sh "sed -i 's|{{ns}}|$NM_SP|g' k8s/configmap-app.yaml"
+                    sh "sed -i 's|{{ns}}|$NM_SP|g' storage-ns.yml"
+                    sh "kubectl apply -f  storage-class.yaml"
+                    sh "kubectl apply -f  storage-ns.yml"
                     sh "kubectl apply --namespace $NM_SP -f  k8s"
                     sleep(5)
                 }                  
