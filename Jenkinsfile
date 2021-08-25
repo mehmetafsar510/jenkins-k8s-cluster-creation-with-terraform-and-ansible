@@ -324,8 +324,6 @@ pipeline{
                     sh "sed -i 's|{{ns}}|$NM_SP|g' k8s/configmap-app.yaml"
                     sh "kubectl apply --namespace $NM_SP -f  k8s"
                     sleep(5)
-                    sh "sed -i 's|{{FQDN}}|$FQDN|g' ingress-service.yaml"
-                    sleep(10)
                 }                  
             }
         }
@@ -335,6 +333,7 @@ pipeline{
                 script {
                         while(true) {
                             try {
+                              sh "sed -i 's|{{FQDN}}|$FQDN|g' ingress-service.yaml"
                               sh "kubectl apply --validate=false --namespace $NM_SP -f ingress-service.yaml"
                               echo "Successfully created ingress."
                               break
