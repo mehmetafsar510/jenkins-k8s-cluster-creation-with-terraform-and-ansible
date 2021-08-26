@@ -329,11 +329,11 @@ pipeline{
         }
 
 
-        stage('apply-k8s'){
+        stage('create-ns-k8s'){
             agent any
             steps{
                 withAWS(credentials: 'mycredentials', region: 'us-east-1') {
-                    sh "sed -i 's|{{ECR_REGISTRY}}|$ECR_REGISTRY/$APP_REPO_NAME:latest|g' k8s/deployment-app.yaml"
+                    
                     sh '''
                         NameSpaces=$(kubectl get namespaces | grep -i $NM_SP) || true
                         if [ "$NameSpaces" == '' ]
@@ -344,15 +344,35 @@ pipeline{
                             kubectl create namespace $NM_SP
                         fi
                     '''
-                    sh "sed -i 's|{{ns}}|$NM_SP|g' k8s/configmap-app.yaml"
-                    sh "sed -i 's|{{ns}}|$NM_SP|g' storage-ns.yml"
-                    sh "kubectl apply -f  storage-class.yaml"
-                    sh "kubectl apply -f  storage-ns.yml"
-                    sh "kubectl apply --namespace $NM_SP -f  k8s"
+                    
                     sleep(5)
                 }                  
             }
         }
+
+        stage('apply k8s ') {
+            steps {
+                echo "apply k8s"
+                script {
+                        while(true) {
+                            try {
+                              sh "sed -i 's|{{ECR_REGISTRY}}|$ECR_REGISTRY/$APP_REPO_NAME:latest|g' k8s/deployment-app.yaml"
+                              sh "sed -i 's|{{ns}}|$NM_SP|g' k8s/configmap-app.yaml"
+                              sh "sed -i 's|{{ns}}|$NM_SP|g' storage-ns.yml"
+                              sh "kubectl apply -f  storage-class.yaml"
+                              sh "kubectl apply -f  storage-ns.yml"
+                              sh "kubectl apply --namespace $NM_SP -f  k8s"
+                              break
+                            }
+                            catch(Exception) {
+                              echo 'Could not apply K8s  please wait'
+                              sleep(5)   
+                            }
+                        }
+                    }
+                }
+            }
+        
 
         stage('apply-ingress') {
             steps {
@@ -369,9 +389,9 @@ pipeline{
                               sleep(5)   
                             }
                         }
+                    }
                 }
             }
-        }
 
         stage('dns-record-control'){
             agent any
@@ -459,8 +479,7 @@ pipeline{
                         fi
                     '''
                     sleep(5)
-                    sh "sed -i 's|{{FQDN}}|$FQDN|g' ingress-service.yaml"
-                    sh "kubectl delete --namespace $NM_SP -f ingress-service.yaml" 
+                    sh "sed -i 's|{{FQDN}}|$FQDN|g' ingress-service.yaml" 
                     sh "sudo mv -f ingress-service-https.yaml ingress-service.yaml" 
                     sh "kubectl apply --namespace $NM_SP -f ssl-tls-cluster-issuer.yaml"
                     sh "sed -i 's|{{FQDN}}|$FQDN|g' ingress-service.yaml"
