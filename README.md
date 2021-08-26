@@ -14,16 +14,24 @@ At the end of this hands-on training, students will be able to;
 
 ## Outline
 
-- Part 1 - Install Terraform, Ansible and Kubectl on AWS EC2
+- Part 1 - Installing Plugins
 
-- Part 2 - Create the infrastructure with Terraform
+- Part 2 - Install Terraform, Ansible and Kubectl on AWS EC2
 
-- Part 3 - Configure the infrastructure with Ansible
+- Part 3 - Create the infrastructure with Terraform
 
-- Part 4 - Deploy a Sample Applications
+- Part 4 - Configure the infrastructure with Ansible
+
+- Part 5 - Deploy a Sample Applications
+
+## Part 1 - Installing Plugins
+
+- Open your Jenkins dashboard and navigate to `Manage Jenkins` >> `Manage Plugins` >> `Available` tab
+
+- Search and select `GitHub Integration, Pipeline:GitHub, Pipeline: AWS Steps, Docker, Docker Pipeline, SSH Agent Plugin, Cloudbees AWS Credentials` plugins, then click to `Install without restart`. Note: No need to install the other `Git plugin` which is already installed can be seen under `Installed` tab.
 
 
-## Part 1 - Install Terraform, Ansible and Kubectl on AWS EC2
+## Part 2 - Install Terraform, Ansible and Kubectl on AWS EC2
 
 - Launch an AWS EC2 (t2.micro) on Amazon Linux 2 AMI with security group allowing SSH.
 
@@ -115,7 +123,7 @@ mv terraform ansible ingress-yaml-files ~/
 ```
 
 
-## Part 2 - Create the infrastructure with Terraform
+## Part 3 - Create the infrastructure with Terraform
 
 - Configure AWS credentials.
 
@@ -147,7 +155,7 @@ terraform apply
 - Wait for the instances to show up in the AWS Console and check whether they are healthy or not. 
 
 
-## Part 3 - Configure the infrastructure with Ansible
+## Part 4 - Configure the infrastructure with Ansible
 
 - This time cd into the ```ansible``` folder.
 
@@ -214,7 +222,7 @@ kubectl get deploy -A
 - If you see the output of the default nginx controller deployment (ingress-nginx-controller) and the deployment of the CSI Driver (ebs-csi-controller) then it means that we have deployed the Cloud Controller Manager, EBS CSI Driver and the ingress controller successfully. 
 
 
-## Part 4 - Deploy a Sample Applications
+## Part 5 - Deploy a Sample Applications
 
 - Now, cd into the ~/.kube folder.
 
