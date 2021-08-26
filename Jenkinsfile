@@ -478,7 +478,7 @@ pipeline{
             sh 'docker image prune -af'
         }
         failure {
-                withAWS(credentials: 'mycredentials', region: 'us-east-1') {
+            withAWS(credentials: 'mycredentials', region: 'us-east-1') {
                 sh "rm -rf '${WORKSPACE}/.env'"
                 sh """
                 aws ec2 detach-volume \
@@ -495,10 +495,6 @@ pipeline{
                   --db-instance-identifier mysql-instance \
                   --skip-final-snapshot \
                   --delete-automated-backups
-                """
-                sh """
-                aws ec2 delete-volume \
-                  --volume-id ${EBS_VOLUME_ID} \
                 """
                 sh """
                 aws ec2 delete-key-pair \
