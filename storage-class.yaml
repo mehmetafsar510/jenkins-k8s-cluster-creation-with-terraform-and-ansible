@@ -5,8 +5,8 @@ metadata:
   annotations:
     storageclass.kubernetes.io/is-default-class: "true"
 provisioner: ebs.csi.aws.com
-#reclaimPolicy: Retain
-#volumeBindingMode: WaitForFirstConsumer
+reclaimPolicy: Retain
+volumeBindingMode: WaitForFirstConsumer
 parameters:
   type: gp2
-  #fsType: ext4
+  fsType: ext4
