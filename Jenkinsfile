@@ -329,7 +329,7 @@ pipeline{
         }
 
 
-        stage('create-ns-k8s'){
+        stage('apply-k8s'){
             agent any
             steps{
                 withAWS(credentials: 'mycredentials', region: 'us-east-1') {
