@@ -333,7 +333,7 @@ pipeline{
             agent any
             steps{
                 withAWS(credentials: 'mycredentials', region: 'us-east-1') {
-                    
+                    sh "sed -i 's|{{ECR_REGISTRY}}|$ECR_REGISTRY/$APP_REPO_NAME:latest|g' k8s/deployment-app.yaml"
                     sh '''
                         NameSpaces=$(kubectl get namespaces | grep -i $NM_SP) || true
                         if [ "$NameSpaces" == '' ]
@@ -344,35 +344,15 @@ pipeline{
                             kubectl create namespace $NM_SP
                         fi
                     '''
-                    
+                    sh "sed -i 's|{{ns}}|$NM_SP|g' k8s/configmap-app.yaml"
+                    sh "sed -i 's|{{ns}}|$NM_SP|g' storage-ns.yml"
+                    sh "kubectl apply -f  storage-class.yaml"
+                    sh "kubectl apply -f  storage-ns.yml"
+                    sh "kubectl apply --namespace $NM_SP -f  k8s" 
                     sleep(5)
                 }                  
             }
         }
-
-        stage('apply k8s ') {
-            steps {
-                echo "apply k8s"
-                script {
-                        while(true) {
-                            try {
-                              sh "sed -i 's|{{ECR_REGISTRY}}|$ECR_REGISTRY/$APP_REPO_NAME:latest|g' k8s/deployment-app.yaml"
-                              sh "sed -i 's|{{ns}}|$NM_SP|g' k8s/configmap-app.yaml"
-                              sh "sed -i 's|{{ns}}|$NM_SP|g' storage-ns.yml"
-                              sh "kubectl apply -f  storage-class.yaml"
-                              sh "kubectl apply -f  storage-ns.yml"
-                              sh "kubectl apply --namespace $NM_SP -f  k8s"    
-                              break
-                            }
-                            catch(Exception) {
-                              echo 'Could not apply K8s  please wait'
-                              sleep(5)   
-                            }
-                        }
-                    }
-                }
-            }
-        
 
         stage('apply-ingress') {
             steps {
