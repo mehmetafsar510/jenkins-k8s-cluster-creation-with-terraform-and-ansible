@@ -464,7 +464,8 @@ pipeline{
                     sh "kubectl apply --namespace $NM_SP -f ssl-tls-cluster-issuer.yaml"
                     sh "sed -i 's|{{FQDN}}|$FQDN|g' ingress-service.yaml"
                     sh "sed -i 's|{{SEC_NAME}}|$SEC_NAME|g' ingress-service.yaml"
-                    sh "kubectl apply --namespace $NM_SP -f ingress-service.yaml"              
+                    sh "kubectl apply --namespace $NM_SP -f ingress-service.yaml"
+                    sh "sudo mv -f /var/lib/jenkins/.kube/config /home/ec2-user/.kube/"              
                 }                  
             }
         }
