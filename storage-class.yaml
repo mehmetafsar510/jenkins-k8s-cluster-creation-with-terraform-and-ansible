@@ -9,4 +9,4 @@ reclaimPolicy: Retain
 volumeBindingMode: WaitForFirstConsumer
 parameters:
   type: gp2
-  fsType: ext4 
+  fsType: ext4
