@@ -363,6 +363,7 @@ pipeline{
                               sh "kubectl apply -f  storage-ns.yml"
                               sh "kubectl replace -f storage-class.yaml --force"
                               sh "kubectl apply --namespace $NM_SP -f  k8s"
+                              
                               break
                             }
                             catch(Exception) {
