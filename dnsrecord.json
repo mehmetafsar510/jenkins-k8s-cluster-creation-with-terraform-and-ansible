@@ -1,11 +1,14 @@
 {
-    "Comment": "CREATE/DELETE/UPSERT a record ",
+    "Comment": "Creating Alias resource record sets in Route 53",
     "Changes": [{
-    "Action": "CREATE",
-                "ResourceRecordSet": {
-                            "Name": "{{FQDN}}",
-                            "Type": "A",
-                            "TTL": 300,
-                         "ResourceRecords": [{ "Value": "{{DNS}}"}]
-}}]
+               "Action": "CREATE",
+               "ResourceRecordSet": {
+                           "Name": "{{FQDN}}",
+                           "Type": "A",
+                           "AliasTarget":{
+                                   "HostedZoneId": "Z26RNL4JYFTOTI",
+                                   "DNSName": "{{DNS}}",
+                                   "EvaluateTargetHealth": false
+                             }}
+                         }]
 }
