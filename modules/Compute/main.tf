@@ -5,7 +5,7 @@ resource "aws_instance" "kube-master" {
     vpc_security_group_ids = [aws_security_group.matt-kube-master-sg.id, aws_security_group.matt-kube-mutual-sg.id]
     key_name = var.key_name
     subnet_id = var.public_subnets
-    availability_zone = "us-east-1a"
+    availability_zone = "us-east-1b"
     tags = {
         Name = "kube-master"
         "kubernetes.io/cluster/mattsCluster" = "owned"
@@ -22,7 +22,7 @@ resource "aws_instance" "worker-1" {
     vpc_security_group_ids = [aws_security_group.matt-kube-worker-sg.id, aws_security_group.matt-kube-mutual-sg.id]
     key_name = var.key_name
     subnet_id = var.public_subnets
-    availability_zone = "us-east-1a"
+    availability_zone = "us-east-1b"
     tags = {
         Name = "worker-1"
         "kubernetes.io/cluster/mattsCluster" = "owned"
@@ -39,7 +39,7 @@ resource "aws_instance" "worker-2" {
     vpc_security_group_ids = [aws_security_group.matt-kube-worker-sg.id, aws_security_group.matt-kube-mutual-sg.id]
     key_name = var.key_name
     subnet_id = var.public_subnets
-    availability_zone = "us-east-1a"
+    availability_zone = "us-east-1b"
     tags = {
         Name = "worker-2"
         "kubernetes.io/cluster/mattsCluster" = "owned"
