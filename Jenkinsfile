@@ -238,7 +238,7 @@ pipeline{
                     Ansible=$(ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ${JENKINS_HOME}/.ssh/${CFN_KEYPAIR}.pem ubuntu@\"${MASTER_INSTANCE_PUBLIC_IP}" ls /home/ubuntu/.kube | grep -i config )  || true
                     if [ "$Ansible" == '' ]
                     then
-                        ansible-playbook playbook.yml
+                        ansible-playbook --extra-vars "workspace=${WORKSPACE}" playbook.yml
                     fi
                 '''
                     

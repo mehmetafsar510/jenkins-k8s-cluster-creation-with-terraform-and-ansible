@@ -105,7 +105,7 @@
 
   - name: Copy join command to local file
     become: true
-    local_action: copy content="{{ join_command.stdout_lines[0] }}" dest="/var/lib/jenkins/workspace/jenkins-k8s-cluster-creation-with-terraform-and-ansible@2/join-command"
+    local_action: copy content="{{ join_command.stdout_lines[0] }}" dest="{{workspace}}/join-command"
 
 
 - hosts: role_worker
@@ -114,7 +114,7 @@
   
   - name: Copy the join command to server location
     copy: 
-      src: /var/lib/jenkins/workspace/jenkins-k8s-cluster-creation-with-terraform-and-ansible@2/join-command
+      src: "{{workspace}}/join-command"
       dest: /tmp/join-command.sh 
       mode: '0777'
 
