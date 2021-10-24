@@ -219,8 +219,19 @@ pipeline{
                         if (ip.length() >= 7) {
                             echo "Kube Master Public Ip Address Found: $ip"
                             env.MASTER_INSTANCE_PUBLIC_IP = "$ip"
-                            sleep(30)
+                            sleep(5)
                             break
+                        }
+                    }
+                while(true) {
+                        try{
+                            sh 'ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ${JENKINS_HOME}/.ssh/${CFN_KEYPAIR}.pem ubuntu@\"${MASTER_INSTANCE_PUBLIC_IP}" hostname'
+                            echo "Kube Master is reachable with SSH."
+                            break
+                        }
+                        catch(Exception){
+                            echo "Could not connect to Kube Master with SSH, I will try again in 10 seconds"
+                            sleep(10)
                         }
                     }
                 }
@@ -285,13 +296,11 @@ pipeline{
         stage('Copy the config file') {
             steps { 
                 echo "Copy the config file"
-                script {
-                        sh '''scp -o StrictHostKeyChecking=no \
-                                -o UserKnownHostsFile=/dev/null \
-                                -i ${JENKINS_HOME}/.ssh/${CFN_KEYPAIR}.pem -q ubuntu@\"${MASTER_INSTANCE_PUBLIC_IP}":/home/ubuntu/.kube/config /var/lib/jenkins/.kube/
-                            ''' 
-                    
-                }
+                sh "mkdir -p ${JENKINS_HOME}/.kube"
+                sh '''scp -o StrictHostKeyChecking=no \
+                        -o UserKnownHostsFile=/dev/null \
+                        -i ${JENKINS_HOME}/.ssh/${CFN_KEYPAIR}.pem -q ubuntu@\"${MASTER_INSTANCE_PUBLIC_IP}":/home/ubuntu/.kube/config ${JENKINS_HOME}/.kube/
+                    '''     
             }
         }
 
