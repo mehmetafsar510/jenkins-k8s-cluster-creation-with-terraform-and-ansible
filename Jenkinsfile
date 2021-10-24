@@ -79,7 +79,7 @@ pipeline{
                         echo "RDS is not UP and running yet. Will try to reach again after 10 seconds..."
                         sleep(10)
 
-                        endpoint = sh(script:'aws rds describe-db-instances --region ${AWS_REGION} --query DBInstances[*].Endpoint.Address --output text | sed "s/\\s*None\\s*//g"', returnStdout:true).trim()
+                        endpoint = sh(script:'aws rds describe-db-instances --region ${AWS_REGION} --db-instance-identifier mysql-instance --query DBInstances[*].Endpoint.Address --output text | sed "s/\\s*None\\s*//g"', returnStdout:true).trim()
 
                         if (endpoint.length() >= 7) {
                             echo "My Database Endpoint Address Found: $endpoint"
