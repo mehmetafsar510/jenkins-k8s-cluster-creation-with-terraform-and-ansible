@@ -287,9 +287,8 @@ pipeline{
                 echo "Copy the config file"
                 script {
                         sh '''scp -o StrictHostKeyChecking=no \
-                                -i ${JENKINS_HOME}/.ssh/${CFN_KEYPAIR}.pem \ 
                                 -o UserKnownHostsFile=/dev/null \
-                                -q ubuntu@\"${MASTER_INSTANCE_PUBLIC_IP}":/home/ubuntu/.kube/config /var/lib/jenkins/.kube/
+                                -i ${JENKINS_HOME}/.ssh/${CFN_KEYPAIR}.pem -q ubuntu@\"${MASTER_INSTANCE_PUBLIC_IP}":/home/ubuntu/.kube/config /var/lib/jenkins/.kube/
                             ''' 
                     
                 }
