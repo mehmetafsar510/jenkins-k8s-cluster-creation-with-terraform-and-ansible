@@ -18,7 +18,7 @@ pipeline{
         GIT_FOLDER = sh(script:'echo ${GIT_URL} | sed "s/.*\\///;s/.git$//"', returnStdout:true).trim()
     }
     stages{
-        stage('Setup kubectl helm terrform ansible  binaries') {
+        stage('Setup kubectl helm terrform binaries') {
             steps {
               script {
 
@@ -33,9 +33,6 @@ pipeline{
                   sudo yum install -y yum-utils
                   sudo yum-config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux/hashicorp.repo
                   sudo yum -y install terraform
-                  pip3 install ansible
-                  pip3 install boto3 botocore
-                  sudo yum install python-boto3 -y
                 """
               }
             }
