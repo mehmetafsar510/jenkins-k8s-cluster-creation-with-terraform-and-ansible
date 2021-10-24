@@ -300,8 +300,7 @@ pipeline{
                 sh '''scp -o StrictHostKeyChecking=no \
                         -o UserKnownHostsFile=/dev/null \
                         -i ${JENKINS_HOME}/.ssh/${CFN_KEYPAIR}.pem -q ubuntu@\"${MASTER_INSTANCE_PUBLIC_IP}":/home/ubuntu/.kube/config ${JENKINS_HOME}/.kube/
-                    '''
-                sh "sed -i 's/127.0.0.1/${MASTER_INSTANCE_PUBLIC_IP}/' ${JENKINS_HOME}/.kube/config"    
+                    '''    
             }
         }
 
