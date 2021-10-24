@@ -1,5 +1,5 @@
 data "aws_availability_zones" "available" {
-  exclude_names = ["us-east-1c", "us-east-1d", "us-east-1e", "us-east-1f","us-east-1a" ]
+  exclude_names = ["us-east-1c", "us-east-1b", "us-east-1e", "us-east-1f","us-east-1a" ]
 }
 
 resource "random_integer" "random" {
