@@ -6,13 +6,13 @@ pipeline{
         MYSQL_DATABASE_DB = "phonebook"
         MYSQL_DATABASE_PORT = 3306
         PATH="/usr/local/bin/:${env.PATH}"
-        ECR_REGISTRY = "646075469151.dkr.ecr.us-east-1.amazonaws.com"
+        ECR_REGISTRY = "717860527362.dkr.ecr.us-east-1.amazonaws.com"
         APP_REPO_NAME= "phonebook/app"
         CFN_KEYPAIR="the-doctor"
         AWS_REGION = "us-east-1"
         CLUSTER_NAME = "mehmet-cluster"
-        FQDN = "clarusshop.mehmetafsar.com"
-        DOMAIN_NAME = "mehmetafsar.com"
+        FQDN = "clarusshop.mehmetafsar.net"
+        DOMAIN_NAME = "mehmetafsar.net"
         NM_SP = "clarus"
         SEC_NAME = "clarus-cert"
         GIT_FOLDER = sh(script:'echo ${GIT_URL} | sed "s/.*\\///;s/.git$//"', returnStdout:true).trim()
@@ -33,8 +33,8 @@ pipeline{
                   sudo yum install -y yum-utils
                   sudo yum-config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux/hashicorp.repo
                   sudo yum -y install terraform
-                  pip3 install --user ansible
-                  pip3 install --user boto3 botocore
+                  pip3 install ansible
+                  pip3 install boto3 botocore
                   sudo yum install python-boto3 -y
                 """
               }
@@ -183,13 +183,15 @@ pipeline{
                     else
                         aws ec2 create-key-pair \
                           --region ${AWS_REGION} \
-                          --key-name ${CFN_KEYPAIR}.pem \
+                          --key-name ${CFN_KEYPAIR} \
                           --query KeyMaterial \
                           --output text > ${CFN_KEYPAIR}.pem
-
                         chmod 400 ${CFN_KEYPAIR}.pem
-
-                        ssh-keygen -y -f ${CFN_KEYPAIR}.pem >> the_doctor_public.pem
+                        
+                        ssh-keygen -y -f ${CFN_KEYPAIR}.pem >> ${CFN_KEYPAIR}.pub
+                        mkdir -p ${JENKINS_HOME}/.ssh
+                        cp -f ${CFN_KEYPAIR}.pem ${JENKINS_HOME}/.ssh
+                        chown jenkins:jenkins ${JENKINS_HOME}/.ssh/${CFN_KEYPAIR}.pem
                     fi
                 '''                
             }
@@ -199,6 +201,7 @@ pipeline{
             agent any
             steps{
                 withAWS(credentials: 'mycredentials', region: 'us-east-1') {
+                    sh "sed -i 's|{{keypair}}|${CFN_KEYPAIR}|g' variable.tf"
                     sh "terraform init" 
                     sh "terraform apply -input=false -auto-approve"
                 }    
@@ -231,18 +234,15 @@ pipeline{
             steps {
                 echo "Setting up cluster configuration with ansible"
                 sh "sed -i 's|{{key_pair}}|${CFN_KEYPAIR}.pem|g' ansible.cfg"
-                script {
-                    sshagent(credentials : ['my-ssh-key']) {
-                    sh '''
-                        Ansible=$(ssh -t -t ubuntu@\"${MASTER_INSTANCE_PUBLIC_IP}" -o StrictHostKeyChecking=no ls /home/ubuntu/.kube | grep -i config )  || true
-                        if [ "$Ansible" == '' ]
-                        then
-                            ansible-playbook playbook.yml
-
-                        fi
-                    '''
-                    }
-                }
+                sh '''
+                    Ansible=$(ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ${JENKINS_HOME}/.ssh/${CFN_KEYPAIR}.pem ubuntu@\"${MASTER_INSTANCE_PUBLIC_IP}" ls /home/ubuntu/.kube | grep -i config )  || true
+                    if [ "$Ansible" == '' ]
+                    then
+                        ansible-playbook playbook.yml
+                    fi
+                '''
+                    
+                
             }
         }
 
@@ -250,10 +250,9 @@ pipeline{
             steps {
                 echo "Testing if the K8s cluster is ready or not Master Public Ip Address: ${MASTER_INSTANCE_PUBLIC_IP}"
                 script {
-                    sshagent(credentials : ['my-ssh-key']) {
                         while(true) {
                             try {
-                              sh 'ssh -t -t ubuntu@\"${MASTER_INSTANCE_PUBLIC_IP}" -o StrictHostKeyChecking=no kubectl get nodes | grep -i master'
+                              sh 'ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ${JENKINS_HOME}/.ssh/${CFN_KEYPAIR}.pem ubuntu@\"${MASTER_INSTANCE_PUBLIC_IP}" kubectl get nodes | grep -i master'
                               echo "Successfully created K8s cluster."
                               sleep(60)
                               break
@@ -261,7 +260,6 @@ pipeline{
                             catch(Exception) {
                               echo 'Could not create K8s cluster please wait'
                               sleep(5)   
-                            }
                         }
                     }
                 }
@@ -272,10 +270,9 @@ pipeline{
             steps {
                 echo "Testing if the K8s cluster is ready or not Master Public Ip Address: ${MASTER_INSTANCE_PUBLIC_IP}"
                 script {
-                    sshagent(credentials : ['my-ssh-key']) {
                         while(true) {
                             try {
-                              sh 'ssh -t -t ubuntu@\"${MASTER_INSTANCE_PUBLIC_IP}" -o StrictHostKeyChecking=no kubectl get svc -A'
+                              sh 'ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ${JENKINS_HOME}/.ssh/${CFN_KEYPAIR}.pem ubuntu@\"${MASTER_INSTANCE_PUBLIC_IP}" kubectl get svc -A'
                               echo "Successfully K8s loadbalancer service."
                               sleep(120)
                               break
@@ -283,7 +280,6 @@ pipeline{
                             catch(Exception) {
                               echo 'Could not create K8s cluster please wait'
                               sleep(5)   
-                            }
                         }
                     }
                 }
@@ -293,12 +289,12 @@ pipeline{
             steps { 
                 echo "Copy the config file"
                 script {
-                    sshagent(credentials : ['my-ssh-key']) {
                         sh '''scp -o StrictHostKeyChecking=no \
+                                -i ${JENKINS_HOME}/.ssh/${CFN_KEYPAIR}.pem \ 
                                 -o UserKnownHostsFile=/dev/null \
                                 -q ubuntu@\"${MASTER_INSTANCE_PUBLIC_IP}":/home/ubuntu/.kube/config /var/lib/jenkins/.kube/
                             ''' 
-                    }
+                    
                 }
             }
         }
@@ -385,7 +381,7 @@ pipeline{
                     sh "sed -i 's|{{DNS}}|$ELB_DNS|g' deleterecord.json"
                     sh "sed -i 's|{{FQDN}}|$FQDN|g' deleterecord.json"
                     sh '''
-                        RecordSet=$(aws route53 list-resource-record-sets   --hosted-zone-id $ZONE_ID   --query ResourceRecordSets[] | grep -i $FQDN) || true
+                        RecordSet=$(aws route53 list-resource-record-sets --hosted-zone-id $ZONE_ID --query \"ResourceRecordSets[?Name == '\$FQDN.']\" --output text | tail -n 1 | cut -f2) || true
                         if [ "$RecordSet" != '' ]
                         then
                             aws route53 change-resource-record-sets --hosted-zone-id $ZONE_ID --change-batch file://deleterecord.json
@@ -476,36 +472,6 @@ pipeline{
         always {
             echo 'Deleting all local images'
             sh 'docker image prune -af'
-        }
-        failure {
-            withAWS(credentials: 'mycredentials', region: 'us-east-1') {
-                sh "rm -rf '${WORKSPACE}/.env'"
-                sh """
-                aws ec2 detach-volume \
-                  --volume-id ${EBS_VOLUME_ID} \
-                """
-                sh """
-                aws ecr delete-repository \
-                  --repository-name ${APP_REPO_NAME} \
-                  --region ${AWS_REGION}\
-                  --force
-                """
-                sh """
-                aws rds delete-db-instance \
-                  --db-instance-identifier mysql-instance \
-                  --skip-final-snapshot \
-                  --delete-automated-backups
-                """
-                sh """
-                aws ec2 delete-key-pair \
-                  --key-name ${CFN_KEYPAIR}.pem
-                """
-                sh "rm -rf '${WORKSPACE}/the_doctor_public.pem'"
-                sh "rm -rf '${WORKSPACE}/${CFN_KEYPAIR}.pem'"
-                sh "eksctl delete cluster ${CLUSTER_NAME}"
-                sh "docker rm -f '\$(docker ps -a -q)'"
-                sh "kubectl delete -f k8s"
-            }    
         }
         success {
             echo "You are Greattt...You can visit https://$FQDN"

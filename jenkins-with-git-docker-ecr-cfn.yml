@@ -127,6 +127,11 @@ Resources:
           mv ./kubectl /usr/local/bin
           curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
           mv /tmp/eksctl /usr/local/bin
+          # install ansible
+          pip3 install ansible
+          # install boto3
+          pip3 install boto3
+          yum install python-boto3 -y
           
 Outputs:
   JenkinsDNS:
