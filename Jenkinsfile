@@ -282,7 +282,7 @@ pipeline{
                             try {
                               sh 'ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ${JENKINS_HOME}/.ssh/${CFN_KEYPAIR}.pem ubuntu@\"${MASTER_INSTANCE_PUBLIC_IP}" kubectl get svc -A'
                               echo "Successfully K8s loadbalancer service."
-                              sleep(120)
+                              sleep(10)
                               break
                             }
                             catch(Exception) {
