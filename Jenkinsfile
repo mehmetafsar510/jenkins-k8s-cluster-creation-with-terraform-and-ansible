@@ -307,7 +307,7 @@ pipeline{
                 }
             }
         }
-        stage('Copy the config file') {
+        stage('Copy the config file and configure ssl') {
             steps { 
                 echo "Copy the config file"
                 sh "mkdir -p ${JENKINS_HOME}/.kube"
