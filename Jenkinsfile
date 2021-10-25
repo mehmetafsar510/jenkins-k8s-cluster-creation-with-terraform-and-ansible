@@ -76,8 +76,8 @@ pipeline{
             script {
                 while(true) {
                         
-                        echo "RDS is not UP and running yet. Will try to reach again after 10 seconds..."
-                        sleep(10)
+                        echo "RDS is not UP and running yet. Will try to reach again after 5 seconds..."
+                        sleep(5)
 
                         endpoint = sh(script:'aws rds describe-db-instances --region ${AWS_REGION} --db-instance-identifier mysql-instance --query DBInstances[*].Endpoint.Address --output text | sed "s/\\s*None\\s*//g"', returnStdout:true).trim()
 
@@ -226,7 +226,7 @@ pipeline{
                 while(true) {
                         
                         echo "Kube Master is not UP and running yet. Will try to reach again after 10 seconds..."
-                        sleep(10)
+                        sleep(5)
 
                         ip = sh(script:'aws ec2 describe-instances --region ${AWS_REGION} --filters Name=tag-value,Values=kube-master  --query Reservations[*].Instances[*].[PrivateIpAddress] --output text | sed "s/\\s*None\\s*//g"', returnStdout:true).trim()
 
@@ -245,7 +245,7 @@ pipeline{
                         }
                         catch(Exception){
                             echo "Could not connect to Kube Master with SSH, I will try again in 10 seconds"
-                            sleep(10)
+                            sleep(5)
                         }
                     }
                 }
@@ -276,7 +276,7 @@ pipeline{
                             try {
                               sh 'ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ${JENKINS_HOME}/.ssh/${CFN_KEYPAIR}.pem ubuntu@\"${MASTER_INSTANCE_PUBLIC_IP}" kubectl get nodes | grep -i master'
                               echo "Successfully created K8s cluster."
-                              sleep(60)
+                              sleep(10)
                               break
                             }
                             catch(Exception) {
@@ -370,7 +370,6 @@ pipeline{
                     sh "kubectl apply -f  storage-class.yaml"
                     sh "kubectl apply -f  storage-ns.yml"
                     sh "kubectl apply --namespace $NM_SP -f  k8s" 
-                    sleep(5)
                 }                  
             }
         }
