@@ -318,7 +318,7 @@ pipeline{
                 sh "sed -i 's/$MASTER_INSTANCE_PRIVATE_IP/$MASTER_INSTANCE_PUBLIC_IP/' ${JENKINS_HOME}/.kube/config"
                 sh 'ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ${JENKINS_HOME}/.ssh/${CFN_KEYPAIR}.pem ubuntu@\"${MASTER_INSTANCE_PUBLIC_IP}" sudo rm -f /etc/kubernetes/pki/apiserver.*'
                 sh 'ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ${JENKINS_HOME}/.ssh/${CFN_KEYPAIR}.pem ubuntu@\"${MASTER_INSTANCE_PUBLIC_IP}" sudo kubeadm init phase certs all --apiserver-advertise-address=0.0.0.0 --apiserver-cert-extra-sans=$MASTER_INSTANCE_PRIVATE_IP,$MASTER_INSTANCE_PUBLIC_IP'
-                sh "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ${JENKINS_HOME}/.ssh/${CFN_KEYPAIR}.pem ubuntu@\'${MASTER_INSTANCE_PUBLIC_IP}' docker rm -f `docker ps -q -f 'name=k8s_kube-apiserver*'`"
+                sh "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ${JENKINS_HOME}/.ssh/${CFN_KEYPAIR}.pem ubuntu@\'${MASTER_INSTANCE_PUBLIC_IP}' bash ssl-script"
                 sh 'ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ${JENKINS_HOME}/.ssh/${CFN_KEYPAIR}.pem ubuntu@\"${MASTER_INSTANCE_PUBLIC_IP}" sudo systemctl restart kubelet'
 
             }
