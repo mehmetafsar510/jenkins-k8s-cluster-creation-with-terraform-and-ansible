@@ -224,6 +224,20 @@ pipeline{
                         }
                     }
                 while(true) {
+                        
+                        echo "Kube Master is not UP and running yet. Will try to reach again after 10 seconds..."
+                        sleep(10)
+
+                        ip = sh(script:'aws ec2 describe-instances --region ${AWS_REGION} --filters Name=tag-value,Values=kube-master  --query Reservations[*].Instances[*].[PrivateIpAddress] --output text | sed "s/\\s*None\\s*//g"', returnStdout:true).trim()
+
+                        if (ip.length() >= 7) {
+                            echo "Kube Master Private Ip Address Found: $ip"
+                            env.MASTER_INSTANCE_PRIVATE_IP = "$ip"
+                            sleep(5)
+                            break
+                        }
+                    }
+                while(true) {
                         try{
                             sh 'ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ${JENKINS_HOME}/.ssh/${CFN_KEYPAIR}.pem ubuntu@\"${MASTER_INSTANCE_PUBLIC_IP}" hostname'
                             echo "Kube Master is reachable with SSH."
@@ -296,11 +310,17 @@ pipeline{
         stage('Copy the config file') {
             steps { 
                 echo "Copy the config file"
-                //sh "mkdir -p ${JENKINS_HOME}/.kube"
+                sh "mkdir -p ${JENKINS_HOME}/.kube"
                 sh '''scp -o StrictHostKeyChecking=no \
                         -o UserKnownHostsFile=/dev/null \
-                        -i ${JENKINS_HOME}/.ssh/${CFN_KEYPAIR}.pem -r ubuntu@\"${MASTER_INSTANCE_PUBLIC_IP}":/home/ubuntu/.kube ${JENKINS_HOME}
-                    '''    
+                        -i ${JENKINS_HOME}/.ssh/${CFN_KEYPAIR}.pem -q ubuntu@\"${MASTER_INSTANCE_PUBLIC_IP}":/home/ubuntu/.kube/config ${JENKINS_HOME}/.kube/
+                    '''
+                sh "sed -i 's/$MASTER_INSTANCE_PRIVATE_IP/$MASTER_INSTANCE_PUBLIC_IP/' ${JENKINS_HOME}/.kube/config"
+                sh 'ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ${JENKINS_HOME}/.ssh/${CFN_KEYPAIR}.pem ubuntu@\"${MASTER_INSTANCE_PUBLIC_IP}" sudo rm -f /etc/kubernetes/pki/apiserver.*'
+                sh 'ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ${JENKINS_HOME}/.ssh/${CFN_KEYPAIR}.pem ubuntu@\"${MASTER_INSTANCE_PUBLIC_IP}" sudo kubeadm init phase certs all --apiserver-advertise-address=0.0.0.0 --apiserver-cert-extra-sans=$MASTER_INSTANCE_PRIVATE_IP,$MASTER_INSTANCE_PUBLIC_IP'
+                sh "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ${JENKINS_HOME}/.ssh/${CFN_KEYPAIR}.pem ubuntu@\'${MASTER_INSTANCE_PUBLIC_IP}' docker rm -f `docker ps -q -f 'name=k8s_kube-apiserver*'`"
+                sh 'ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ${JENKINS_HOME}/.ssh/${CFN_KEYPAIR}.pem ubuntu@\"${MASTER_INSTANCE_PUBLIC_IP}" sudo systemctl restart kubelet'
+
             }
         }
 
