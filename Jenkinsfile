@@ -296,10 +296,10 @@ pipeline{
         stage('Copy the config file') {
             steps { 
                 echo "Copy the config file"
-                sh "mkdir -p ${JENKINS_HOME}/.kube"
+                //sh "mkdir -p ${JENKINS_HOME}/.kube"
                 sh '''scp -o StrictHostKeyChecking=no \
                         -o UserKnownHostsFile=/dev/null \
-                        -i ${JENKINS_HOME}/.ssh/${CFN_KEYPAIR}.pem -q ubuntu@\"${MASTER_INSTANCE_PUBLIC_IP}":/home/ubuntu/.kube/config ${JENKINS_HOME}/.kube/
+                        -i ${JENKINS_HOME}/.ssh/${CFN_KEYPAIR}.pem -r ubuntu@\"${MASTER_INSTANCE_PUBLIC_IP}":/home/ubuntu/.kube ${JENKINS_HOME}
                     '''    
             }
         }
