@@ -28,7 +28,7 @@ At the end of this hands-on training, students will be able to;
 
 - Open your Jenkins dashboard and navigate to `Manage Jenkins` >> `Manage Plugins` >> `Available` tab
 
-- Search and select `GitHub Integration, Pipeline:GitHub, Pipeline: AWS Steps, Docker, Docker Pipeline, SSH Agent Plugin, Cloudbees AWS Credentials` plugins, then click to `Install without restart`. Note: No need to install the other `Git plugin` which is already installed can be seen under `Installed` tab.
+- Search and select `GitHub Integration, Pipeline:GitHub, Pipeline: AWS Steps, Docker, Docker Pipeline, SSH Agent Plugin, Cloudbees AWS Credentials,Job DSL,Pipeline Job,Pipeline: API,Pipeline: Basic Steps, Pipeline: Build Steps, Pipeline: Declarative` plugins, then click to `Install without restart`. Note: No need to install the other `Git plugin` which is already installed can be seen under `Installed` tab.
 
 
 ## Part 2 - Install Terraform, Ansible and Kubectl on AWS EC2
